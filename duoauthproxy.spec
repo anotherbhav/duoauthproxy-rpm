@@ -1,5 +1,5 @@
 Name:           duoauthproxy
-Version:        2.4.12
+Version:        2.4.20
 Release:        1%{?dist}
 Summary:        Duo Authentication Proxy
 
@@ -7,12 +7,9 @@ Group:          System Environment/Daemons
 License:        Commercial
 URL:            https://www.duosecurity.com/docs/ldap
 Source0:        https://dl.duosecurity.com/duoauthproxy-%{version}-src.tgz
-Source1:        authproxy.sample-openldap.cfg
-Patch0:         non-interactive-install.patch
-Patch1:         allow-anon-bind.patch
 
-%define svc_user    nobody
-%define install_dir /opt/%{name}
+%define svc_user duoauthproxy
+%define install_dir /usr/lib/%{name}
 %global debug_package %{nil}
 
 BuildRequires: python-devel
@@ -23,13 +20,14 @@ BuildRequires: perl
 Requires: initscripts
 Requires: chkconfig
 
+# required so that build files don't become requirements
+AutoReqProv: no
+
 %description
 Proxies RADIUS or LDAP authentication attempts and adds Duo authentication
 
 %prep
 %setup -q -n %{name}-%{version}-src
-%patch0 -p1
-%patch1 -p1
 
 # Sample config
 cp -p %{SOURCE1} conf
@@ -82,7 +80,6 @@ fi
 %{install_dir}/bin
 %config %{install_dir}/conf/ca-bundle.crt
 %config(noreplace) %attr(640,%{svc_user},%{svc_user}) %{install_dir}/conf/authproxy.cfg
-%{install_dir}/conf/authproxy.sample-openldap.cfg
 %{install_dir}/doc
 %{install_dir}/include
 %{install_dir}/lib
@@ -94,3 +91,9 @@ fi
 %changelog
 * Fri Oct 16 2015 John Thiltges <> 2.4.12-1
 - Initial package
+* 2017-02-27 @AnotherBhav <> 2.4.20
+- removed patch0 and patch1 installs - they don't work with 2.4.20
+- added additional required packages for compilation
+- added "AutoReqProv: no" - it kept adding build files as requirements
+- added username: duoauthproxy
+- changed install dir to: /usr/lib
