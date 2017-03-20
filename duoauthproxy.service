@@ -1,0 +1,12 @@
+[Unit]
+Description=DUO Authentication Proxy
+After=syslog.target network.target
+
+[Service]
+Type=forking
+ExecStart=/usr/lib/duoauthproxy/bin/authproxyctl start
+ExecStop=/usr/lib/duoauthproxy/bin/authproxyctl stop
+WorkingDirectory=/usr/lib/duoauthproxy
+
+[Install]
+WantedBy=multi-user.target
