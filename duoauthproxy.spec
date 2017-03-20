@@ -7,6 +7,7 @@ Group:          System Environment/Daemons
 License:        Commercial
 URL:            https://www.duosecurity.com/docs/ldap
 Source0:        https://dl.duosecurity.com/duoauthproxy-%{version}-src.tgz
+Source1:        duoauthproxy.service
 
 %define svc_user duoauthproxy
 %define install_dir /usr/lib/%{name}
@@ -30,7 +31,7 @@ Proxies RADIUS or LDAP authentication attempts and adds Duo authentication
 %setup -q -n %{name}-%{version}-src
 
 # Sample config
-cp -p %{SOURCE1} conf
+# cp -p %{SOURCE1} conf
 
 # Set username in authproxyctl
 perl -p -i -e "s/^USER_DEFAULT = None$/USER_DEFAULT = '%{svc_user}'/g" pkgs/duoauthproxy/scripts/authproxyctl
@@ -63,6 +64,10 @@ install -D init %{buildroot}/%{_initddir}/%{name}
 mkdir -p %{buildroot}/%{install_dir}
 cp -a duoauthproxy-build/* %{buildroot}/%{install_dir}
 
+mkdir -p %{buildroot}/%{_initddir}
+install -p -D -m 644 %{SOURCE1} %{buildroot}%{_unitdir}/duoauthproxy.service
+
+
 %clean
 rm -rf %{buildroot}
 
@@ -87,13 +92,16 @@ fi
 %attr(750,%{svc_user},%{svc_user}) %{install_dir}/log
 %attr(750,%{svc_user},%{svc_user}) %{install_dir}/run
 %{_initddir}/%{name}
+%{_unitdir}/duoauthproxy.service
 
 %changelog
-* Fri Oct 16 2015 John Thiltges <> 2.4.12-1
-- Initial package
-* 2017-02-27 @AnotherBhav <> 2.4.20
+* Mon Mar 20 2017 @anotherbhav
+- added Source1 as a systemd startup file
+* Mon Feb 27 2017 @anotherBhav <> 2.4.20
 - removed patch0 and patch1 installs - they don't work with 2.4.20
 - added additional required packages for compilation
 - added "AutoReqProv: no" - it kept adding build files as requirements
 - added username: duoauthproxy
 - changed install dir to: /usr/lib
+* Fri Oct 16 2015 John Thiltges <> 2.4.12-1
+- Initial package
